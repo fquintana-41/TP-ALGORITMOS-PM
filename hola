@@ -1,1 +1,32 @@
-hola mundo
+#include <iostream>
+
+using namespace std;
+
+void mostrarmenu()
+{
+cout << "1. Cargar archivo de ataque en memoria." << endl;
+cout << "2. Mostrar ataque cargado." << endl;
+cout << "3. Crear un archivo de ataque nuevo." << endl;
+cout << "4. Corregir un registro del archivo. "<< endl;
+cout << "5. Corregir un registro en memoria." << endl;
+cout << "6. Guardar memoria en un archivo nuevo." << endl;
+cout << "7. Visualizar un archivo de ataque en html." << endl;
+}
+
+int main 
+{
+    char c;
+    do 
+    {
+        mostrarmenu();
+        do
+        {
+        c= getch();
+        }while ( c!= '1'; c!= '2'; c!= '3'; c!= '4'; c!='5'; c!='6'; c!= '7')
+    switch(c)
+    {
+        
+    }
+}while(c!=27)
+    
+}
