@@ -16,15 +16,15 @@ cout << "7. Visualizar un archivo de ataque en html." << endl;
 
 int main ()
 {
-    char c;
+    char opcion;
     do 
     {
         mostrarmenu();
+        cout << "Ingrese una opcion: ";
+        cin >> opcion;
         do
         {
-        c= getch(); //cambiar 
-        }while ( c!= '1' && c!= '2' && c!= '3'&& c!= '4'&& c!='5'&& c!='6' && c!= '7' && c!=27);
-    switch(c)
+    switch(opcion)
     {
         case '1':
         break;
@@ -47,7 +47,7 @@ int main ()
         case '7':
         break;
     }
-}while(c!=27);
+}while(opcion!=27);
     return 0;
 }
 
