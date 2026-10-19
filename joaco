@@ -1,5 +1,5 @@
 #include <iostream>
-#include <conio.h>
+
 
 using namespace std;
 
@@ -22,7 +22,7 @@ int main ()
         mostrarmenu();
         do
         {
-        c= getch();
+        c= getch(); //cambiar 
         }while ( c!= '1' && c!= '2' && c!= '3'&& c!= '4'&& c!='5'&& c!='6' && c!= '7' && c!=27);
     switch(c)
     {
@@ -50,3 +50,4 @@ int main ()
 }while(c!=27);
     return 0;
 }
+
