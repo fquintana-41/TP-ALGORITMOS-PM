@@ -51,3 +51,38 @@ int main ()
     return 0;
 }
 
+void cargararchivo ()
+{
+ cout << " opcion 1: Cargar archivo de ataque en memoria " << endl;
+}
+
+void mostrarataque ()
+{
+    cout << " opcion 2: Mostrar ataque cargado " << endl; 
+}
+
+void creararchivo ()
+{
+    cout << " opcion 3: Crear un archivo de ataque nuevo " << endl;
+
+}
+
+void corregirregistroarch ()
+{
+   cout << " opcion 4:Corregir un registro del archivo " << endl;
+}
+
+void corregirregistromem ()
+{
+    cout << " opcion 5: Corregir un registro en memoria " << endl;
+}
+
+void guardarmemoria ()
+{
+    cout << " opcion 6: Guardar memoria en un archivo nuevo " << endl;
+}
+
+void visualizararchivo ()
+{
+    cout << " opcion 7: Visualizar un archivo de ataque en html" << endl;
+}
