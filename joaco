@@ -1,4 +1,5 @@
 #include <iostream>
+#include <conio.h>
 
 using namespace std;
 
@@ -13,7 +14,7 @@ cout << "6. Guardar memoria en un archivo nuevo." << endl;
 cout << "7. Visualizar un archivo de ataque en html." << endl;
 }
 
-int main 
+int main ()
 {
     char c;
     do 
@@ -22,11 +23,11 @@ int main
         do
         {
         c= getch();
-        }while ( c!= '1'; c!= '2'; c!= '3'; c!= '4'; c!='5'; c!='6'; c!= '7')
+        }while ( c!= '1' && c!= '2' && c!= '3'&& c!= '4'&& c!='5'&& c!='6' && c!= '7' && c!=27);
     switch(c)
     {
         
     }
-}while(c!=27)
-    
+}while(c!=27);
+    return 0;
 }
