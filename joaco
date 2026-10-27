@@ -14,7 +14,7 @@ bool aterrizaje = false;
 bool despegue = false;
 int siguientex =0;
 int siguientey= 0;
-}
+};
 
 struct OrdenArchivo
 {
@@ -28,7 +28,7 @@ bool aterrizaje = false;
 bool despegue = false;
 int siguientex =0;
 int siguientey= 0;
-}
+};
 
 void mostrarmenu()
 {
@@ -110,7 +110,6 @@ int main ()
         case '7':
         break;
     }
-}while(opcion!=27);
+    }while(opcion!=27);
     return 0;
-}
-
+    }
