@@ -1,7 +1,34 @@
 #include <iostream>
-
+#define N = 200; //filas
+#define M = 200; //columnas
 
 using namespace std;
+
+struct Orden
+{
+unsigned int espera = 0;
+bool soltarGranada1 = false;
+bool soltarGranada2 = false;
+bool ataqueKamikaze = false;
+bool aterrizaje = false;
+bool despegue = false;
+int siguientex =0;
+int siguientey= 0;
+}
+
+struct OrdenArchivo
+{
+int x =0;
+int y =0;
+unsigned int espera = 0;
+bool soltarGranada1 = false;
+bool soltarGranada2 = false;
+bool ataqueKamikaze = false;
+bool aterrizaje = false;
+bool despegue = false;
+int siguientex =0;
+int siguientey= 0;
+}
 
 void mostrarmenu()
 {
@@ -12,6 +39,42 @@ cout << "4. Corregir un registro del archivo. "<< endl;
 cout << "5. Corregir un registro en memoria." << endl;
 cout << "6. Guardar memoria en un archivo nuevo." << endl;
 cout << "7. Visualizar un archivo de ataque en html." << endl;
+}
+
+void cargararchivo ()
+{
+ cout << " opcion 1: Cargar archivo de ataque en memoria " << endl;
+}
+
+void mostrarataque ()
+{
+    cout << " opcion 2: Mostrar ataque cargado " << endl; 
+}
+
+void creararchivo ()
+{
+    cout << " opcion 3: Crear un archivo de ataque nuevo " << endl;
+
+}
+
+void corregirregistroarch ()
+{
+   cout << " opcion 4:Corregir un registro del archivo " << endl;
+}
+
+void corregirregistromem ()
+{
+    cout << " opcion 5: Corregir un registro en memoria " << endl;
+}
+
+void guardarmemoria ()
+{
+    cout << " opcion 6: Guardar memoria en un archivo nuevo " << endl;
+}
+
+void visualizararchivo ()
+{
+    cout << " opcion 7: Visualizar un archivo de ataque en html" << endl;
 }
 
 int main ()
@@ -51,38 +114,3 @@ int main ()
     return 0;
 }
 
-void cargararchivo ()
-{
- cout << " opcion 1: Cargar archivo de ataque en memoria " << endl;
-}
-
-void mostrarataque ()
-{
-    cout << " opcion 2: Mostrar ataque cargado " << endl; 
-}
-
-void creararchivo ()
-{
-    cout << " opcion 3: Crear un archivo de ataque nuevo " << endl;
-
-}
-
-void corregirregistroarch ()
-{
-   cout << " opcion 4:Corregir un registro del archivo " << endl;
-}
-
-void corregirregistromem ()
-{
-    cout << " opcion 5: Corregir un registro en memoria " << endl;
-}
-
-void guardarmemoria ()
-{
-    cout << " opcion 6: Guardar memoria en un archivo nuevo " << endl;
-}
-
-void visualizararchivo ()
-{
-    cout << " opcion 7: Visualizar un archivo de ataque en html" << endl;
-}
