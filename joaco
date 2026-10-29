@@ -1,117 +1,190 @@
 #include <iostream>
-#define N 200 // filas
-#define M 200 // columnas
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+#define FILAS 200
+#define COLUMNAS 200
 
 using namespace std;
 
 struct Orden
 {
-unsigned int espera = 0;
-bool soltarGranada1 = false;
-bool soltarGranada2 = false;
-bool ataqueKamikaze = false;
-bool aterrizaje = false;
-bool despegue = false;
-int siguientex =0;
-int siguientey= 0;
+    unsigned int Espera = 0;
+    bool SoltarGranada1 = false;
+    bool SoltarGranada2 = false;
+    bool AtaqueKamikaze = false;
+    bool Aterrizaje = false;
+    bool Despegue = false;
+    int SiguienteX = 0;
+    int SiguienteY = 0;
 };
 
 struct OrdenArchivo
 {
-int x =0;
-int y =0;
-unsigned int espera = 0;
-bool soltarGranada1 = false;
-bool soltarGranada2 = false;
-bool ataqueKamikaze = false;
-bool aterrizaje = false;
-bool despegue = false;
-int siguientex =0;
-int siguientey= 0;
+    int X = 0;
+    int Y = 0;
+    unsigned int Espera = 0;
+    bool SoltarGranada1 = false;
+    bool SoltarGranada2 = false;
+    bool AtaqueKamikaze = false;
+    bool Aterrizaje = false;
+    bool Despegue = false;
+    int SiguienteX = 0;
+    int SiguienteY = 0;
 };
 
 void mostrarmenu()
 {
-cout << "1. Cargar archivo de ataque en memoria." << endl;
-cout << "2. Mostrar ataque cargado." << endl;
-cout << "3. Crear un archivo de ataque nuevo." << endl;
-cout << "4. Corregir un registro del archivo. "<< endl;
-cout << "5. Corregir un registro en memoria." << endl;
-cout << "6. Guardar memoria en un archivo nuevo." << endl;
-cout << "7. Visualizar un archivo de ataque en html." << endl;
+    cout << "1. Cargar archivo de ataque en memoria." << endl;
+    cout << "2. Mostrar ataque cargado." << endl;
+    cout << "3. Crear un archivo de ataque nuevo." << endl;
+    cout << "4. Corregir un registro del archivo. "<< endl;
+    cout << "5. Corregir un registro en memoria." << endl;
+    cout << "6. Guardar memoria en un archivo nuevo." << endl;
+    cout << "7. Visualizar un archivo de ataque en html." << endl;
 }
 
-void cargararchivo ()
+bool ValidarArchivo(File *f)
 {
- cout << " opcion 1: Cargar archivo de ataque en memoria " << endl;
+    OrdenArchivo Registro;
+    int CantidadDespegues=0;
+
+    fseek(f, 0, SEEK_SET);
+    while (fread(&Registro, sizeof(OrdenArchivo), 1, f)==1)
+    {
+        if (Registro.X<0 || Registro.X>=FILAS || Registro.Y<0 || Registro.Y>=COLUMNAS) // Validar de las coordenadas.
+        {
+            cout << "El archivo contiene coordenadas invalidas." << endl;
+            return false;
+        }
+        if (Registro.Despegue) // Contar los despegues.
+        {
+            CantidadDespegues++;
+            if (Registro.SoltarGranada1 || Registro.SoltarGranada2 || Registro.AtaqueKamikaze) //Verificar que los despegues no tengan ataques asociados.
+            {
+                cout << "El despegue no debe tener ataques asociados." << endl;
+                return false;
+            }
+        }
+    }
+    if (CantidadDespegues!=1) //Comprobar la cantidad total de despegues.
+    {
+        cout << "El archivo debe tener exactamente un despegue." << endl;
+        return false;
+    }
+    return true;
+}
+void CargarArchivo(Orden Memoria[FILAS][COLUMNAS])
+{
+    OrdenArchivo Registro;
+    FILE *f;
+    char RutaNombreArchivo[256];
+
+    cout << "Indique la ruta y nombre del archivo." << endl;
+    cin >> RutaNombreArchivo;
+    f=fopen(RutaNombreArchivo, "rb");
+    if (!f)
+    {
+        cout << "No se púdo abrir el archivo." << endl;
+        return;
+    }
+    else
+    {
+        if (ValidarArchivo(f)) // Validar el archivo antes de cargarlo.
+        {
+            fseek(f, 0, SEEK_SET);
+            while (fread(&Registro, sizeof(OrdenArchivo), 1, f)==1)
+            {
+                Memoria[Registro.X][Registro.Y].Espera = Registro.Espera;
+                Memoria[Registro.X][Registro.Y].SoltarGranada1 = Registro.SoltarGranada1;
+                Memoria[Registro.X][Registro.Y].SoltarGranada2 = Registro.SoltarGranada2;
+                Memoria[Registro.X][Registro.Y].AtaqueKamikaze = Registro.AtaqueKamikaze;
+                Memoria[Registro.X][Registro.Y].Aterrizaje = Registro.Aterrizaje;
+                Memoria[Registro.X][Registro.Y].Despegue = Registro.Despegue;
+                Memoria[Registro.X][Registro.Y].SiguienteX = Registro.SiguienteX;
+                Memoria[Registro.X][Registro.Y].SiguienteY = Registro.SiguienteY;
+            }
+            cout << "Lectura de archivos finalizada." << endl;
+        }
+        else
+        {
+            cout << "El archivo es invalido. No se cargo en memoria." << endl;
+        }
+    }
+    fclose(f);
 }
 
-void mostrarataque ()
+void MostrarAtaque()
 {
     cout << " opcion 2: Mostrar ataque cargado " << endl; 
 }
 
-void creararchivo ()
+void CrearArchivo()
 {
     cout << " opcion 3: Crear un archivo de ataque nuevo " << endl;
 
 }
 
-void corregirregistroarch ()
+void CorregirArchivo()
 {
    cout << " opcion 4:Corregir un registro del archivo " << endl;
 }
 
-void corregirregistromem ()
+void CorregirMemoria()
 {
     cout << " opcion 5: Corregir un registro en memoria " << endl;
 }
 
-void guardarmemoria ()
+void GuardarMemoria()
 {
     cout << " opcion 6: Guardar memoria en un archivo nuevo " << endl;
 }
 
-void visualizararchivo ()
+void VerHTML()
 {
     cout << " opcion 7: Visualizar un archivo de ataque en html" << endl;
 }
 
 int main ()
 {
+    Orden Memoria[FILAS][COLUMNAS]={};
     char opcion;
-    do 
+    do
     {
-        mostrarmenu();
-        cout << "Ingrese una opcion: ";
+        MostrarMenu();
+        cout << "Ingrese una opcion: " << endl;
         cin >> opcion;
-    switch(opcion)
-    {
-        case '1':
-        break;
-        
-        case '2':
-        break;
-
-        case '3':
-        break;
-
-        case '4':
-        break;
-
-        case '5':
-        break;
-
-        case '6':
-        break;
-
-        case '7':
-        break;
-
-        case '0':
-        cout << "Saliendo del programa" << endl;
-        break;
-    }
-    }while(opcion=0);
+        switch(opcion)
+        {
+            case '1':
+                CargarArchivo(Memoria);
+            break;
+            case '2':
+                MostrarAtaque();
+            break;
+            case '3':
+                CrearArchivo();
+            break;
+            case '4':
+                CorregirArchivo();
+            break;
+            case '5':
+                CorregirMemoria();
+            break;
+            case '6':
+                GuardarMemoria();
+            break;
+            case '7':
+                VerHTML();
+            break;
+            case '0':
+                cout << "Saliendo del programa" << endl;
+            break;
+            default:
+                cout << "Opcion inválida. Intente nuevamente." << endl;
+            break;
+        }
+    }while(opcion!='0');
     return 0;
 }
