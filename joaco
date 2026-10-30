@@ -34,7 +34,7 @@ struct OrdenArchivo
     int SiguienteY = 0;
 };
 
-void mostrarmenu()
+void MostrarMenu()
 {
     cout << "1. Cargar archivo de ataque en memoria." << endl;
     cout << "2. Mostrar ataque cargado." << endl;
@@ -45,7 +45,7 @@ void mostrarmenu()
     cout << "7. Visualizar un archivo de ataque en html." << endl;
 }
 
-bool ValidarArchivo(File *f)
+bool ValidarArchivo(FILE *f)
 {
     OrdenArchivo Registro;
     int CantidadDespegues=0;
