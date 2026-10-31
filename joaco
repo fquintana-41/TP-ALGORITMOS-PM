@@ -45,74 +45,175 @@ void MostrarMenu()
     cout << "7. Visualizar un archivo de ataque en html." << endl;
 }
 
-bool ValidarArchivo(FILE *f)
+bool ValidarArchivo(FILE *Archivo)
 {
-    OrdenArchivo Registro;
-    int CantidadDespegues=0;
+    OrdenArchivo OrdenLeida; // Almacena temporalmente cada registro leido del archivo.
+    OrdenArchivo OrdenActual; // Almacena el registro que se consulta durante el recorrido.
+    bool CoordenadasOcupadas[FILAS][COLUMNAS]={}; // Indica si una coordenada ya aparece en el archivo.
+    bool CoordenadasRecorridas[FILAS][COLUMNAS]={}; // Indica si una coordenada ya fue recorrida.
+    long PosicionesArchivo[FILAS][COLUMNAS]; // Guarda la posición de cada registro dentro del archivo.
+    int TotalDespegues=0; // Cuenta la cantidad de despegues.
+    int TotalFinalizaciones=0; // Cuenta la cantidad de aterrizajes y ataques kamikazes.
+    int TotalRegistros=0; // Cuenta la cantidad de registros del archivo.
+    int DespegueX=0, DespegueY=0; // Guardan las coordenadas del despegue.
+    int ActualX=0, ActualY=0; // Guardan las coordenadas de la orden que estamos consultando.
+    int TotalRecorridas=0; // Cuenta la cantidad de ordenes recorridas.
 
-    fseek(f, 0, SEEK_SET);
-    while (fread(&Registro, sizeof(OrdenArchivo), 1, f)==1)
+    for (int i=0; i<FILAS; i++) // Inicializa las posiciones para indicar que todavía no hay registros guardados.
     {
-        if (Registro.X<0 || Registro.X>=FILAS || Registro.Y<0 || Registro.Y>=COLUMNAS) // Validar de las coordenadas.
+        for (int j=0; j<COLUMNAS; j++)
+        {
+            PosicionesArchivo[i][j] = -1;
+        }
+    }
+    fseek(Archivo, 0, SEEK_END);
+    if (ftell(Archivo)==0)
+    {
+        cout << "El archivo esta vacio." << endl;
+        return false;
+    }
+    fseek(Archivo, 0, SEEK_SET);
+    while (true)
+    {
+        long PosicionRegistro = ftell(Archivo); // Guarda la posicion del registro antes de leerlo.
+        if (fread(&OrdenLeida, sizeof(OrdenArchivo), 1, Archivo)!=1)
+        {
+            break;
+        }
+        TotalRegistros++;
+        if (OrdenLeida.X<0 || OrdenLeida.X>=FILAS || OrdenLeida.Y<0 || OrdenLeida.Y>=COLUMNAS) // Valida que las coordenadas no excedan los límites.
         {
             cout << "El archivo contiene coordenadas invalidas." << endl;
             return false;
         }
-        if (Registro.Despegue) // Contar los despegues.
+        if (CoordenadasOcupadas[OrdenLeida.X][OrdenLeida.Y]) // Comprueba que las coordenadas no sean repetidas.
         {
-            CantidadDespegues++;
-            if (Registro.SoltarGranada1 || Registro.SoltarGranada2 || Registro.AtaqueKamikaze) //Verificar que los despegues no tengan ataques asociados.
+            cout << "El archivo contiene coordenadas repetidas." << endl;
+            return false;
+        }
+        PosicionesArchivo[OrdenLeida.X][OrdenLeida.Y] = PosicionRegistro;
+        CoordenadasOcupadas[OrdenLeida.X][OrdenLeida.Y] = true; // Marca la coordenada como ocupada para detectar posibles repeticiones.
+        if (OrdenLeida.Despegue) // Cuenta los despegues y verifica que no tenga un ataque asociado.
+        {
+            TotalDespegues++;
+            DespegueX = OrdenLeida.X;
+            DespegueY = OrdenLeida.Y;
+            if (OrdenLeida.SoltarGranada1 || OrdenLeida.SoltarGranada2 || OrdenLeida.AtaqueKamikaze) //Verificar que los despegues no tengan ataques asociados.
             {
                 cout << "El despegue no debe tener ataques asociados." << endl;
                 return false;
             }
+            if (OrdenLeida.Aterrizaje)
+            {
+                cout << "El despegue no puede ser tambien un aterrizaje." << endl;
+                return false;
+            }
+        }
+        if (OrdenLeida.Aterrizaje) // Cuenta una posible finalizacion del recorrido.
+        {
+            TotalFinalizaciones++;
+        }
+        if (OrdenLeida.AtaqueKamikaze) // Cuenta una posible finalizacion del recorrido.
+        {
+            TotalFinalizaciones++;
         }
     }
-    if (CantidadDespegues!=1) //Comprobar la cantidad total de despegues.
+    if (TotalDespegues!=1) //Comprueba que exista solo un despegue.
     {
         cout << "El archivo debe tener exactamente un despegue." << endl;
+        return false;
+    }
+    if (TotalFinalizaciones!=1)
+    {
+        cout << "El archivo debe tener una unica finalizacion." << endl;
+        return false;
+    }
+    ActualX = DespegueX;
+    ActualY = DespegueY;
+    fseek(Archivo, PosicionesArchivo[ActualX][ActualY], SEEK_SET);
+    fread(&OrdenActual, sizeof(OrdenArchivo), 1, Archivo); // Recupera el registro correspondiente a las coordenadas actuales.
+    while (true) // Termina el recorrido cuando encuentra el aterrizaje o el ataque kamikaze.
+    {
+        TotalRecorridas++;
+        if (CoordenadasRecorridas[ActualX][ActualY]) // Comprueba que no se haya recorrido esta coordenada anteriormente.
+        {
+            cout << "La ruta contiene coordenadas repetidas." << endl;
+            return false;
+        }
+        CoordenadasRecorridas[ActualX][ActualY] = true; // Marca la coordenada actual como recorrida.
+        if (OrdenActual.Aterrizaje || OrdenActual.AtaqueKamikaze)
+        {
+            break;
+        }
+        ActualX = OrdenActual.SiguienteX;
+        ActualY = OrdenActual.SiguienteY;
+        if (ActualX<0 || ActualX>=FILAS || ActualY<0 || ActualY>=COLUMNAS)
+        {
+            cout << "La ruta contiene coordenadas invalidas." << endl;
+            return false;
+        }
+        if ((ActualX!=OrdenActual.X && ActualY!=OrdenActual.Y) || abs(ActualX - OrdenActual.X) > 1 || abs(ActualY - OrdenActual.Y) > 1) // Comprueba que la siguiente coordenada sea aledaña a la actual.
+        {
+            cout << "La ruta contiene movimientos hacia celdas no aledañas." << endl;
+            return false;
+        }
+        if (PosicionesArchivo[ActualX][ActualY]==-1) // Comprueba que exista un registro en la siguiente coordenada.
+        {
+            cout << "La ruta contiene un hueco." << endl;
+            return false;
+        }
+        fseek(Archivo, PosicionesArchivo[ActualX][ActualY], SEEK_SET);
+        fread(&OrdenActual, sizeof(OrdenArchivo), 1, Archivo);
+    }
+    if (TotalRecorridas!=TotalRegistros)
+    {
+        cout << "La ruta no incluye todos los registros del archivo." << endl;
         return false;
     }
     return true;
 }
 void CargarArchivo(Orden Memoria[FILAS][COLUMNAS])
 {
-    OrdenArchivo Registro;
-    FILE *f;
+    OrdenArchivo OrdenLeida;
+    FILE *Archivo;
     char RutaNombreArchivo[256];
 
     cout << "Indique la ruta y nombre del archivo." << endl;
     cin >> RutaNombreArchivo;
-    f=fopen(RutaNombreArchivo, "rb");
-    if (!f)
+    Archivo=fopen(RutaNombreArchivo, "rb");
+    if (!Archivo)
     {
         cout << "No se púdo abrir el archivo." << endl;
         return;
     }
+    if (ValidarArchivo(Archivo)) // Validar el archivo antes de cargarlo.
+    {
+        for (int i=0; i<FILAS; i++)
+        {
+            for (int j=0; j<COLUMNAS; j++)
+            {
+                Memoria[i][j] = Orden();
+            }
+        }
+        fseek(Archivo, 0, SEEK_SET);
+        while (fread(&OrdenLeida, sizeof(OrdenArchivo), 1, Archivo)==1)
+        {
+            Memoria[OrdenLeida.X][OrdenLeida.Y].Espera = OrdenLeida.Espera;
+            Memoria[OrdenLeida.X][OrdenLeida.Y].SoltarGranada1 = OrdenLeida.SoltarGranada1;
+            Memoria[OrdenLeida.X][OrdenLeida.Y].SoltarGranada2 = OrdenLeida.SoltarGranada2;
+            Memoria[OrdenLeida.X][OrdenLeida.Y].AtaqueKamikaze = OrdenLeida.AtaqueKamikaze;
+            Memoria[OrdenLeida.X][OrdenLeida.Y].Aterrizaje = OrdenLeida.Aterrizaje;
+            Memoria[OrdenLeida.X][OrdenLeida.Y].Despegue = OrdenLeida.Despegue;
+            Memoria[OrdenLeida.X][OrdenLeida.Y].SiguienteX = OrdenLeida.SiguienteX;
+            Memoria[OrdenLeida.X][OrdenLeida.Y].SiguienteY = OrdenLeida.SiguienteY;
+        }
+        cout << "Lectura de archivos finalizada." << endl;
+    }
     else
     {
-        if (ValidarArchivo(f)) // Validar el archivo antes de cargarlo.
-        {
-            fseek(f, 0, SEEK_SET);
-            while (fread(&Registro, sizeof(OrdenArchivo), 1, f)==1)
-            {
-                Memoria[Registro.X][Registro.Y].Espera = Registro.Espera;
-                Memoria[Registro.X][Registro.Y].SoltarGranada1 = Registro.SoltarGranada1;
-                Memoria[Registro.X][Registro.Y].SoltarGranada2 = Registro.SoltarGranada2;
-                Memoria[Registro.X][Registro.Y].AtaqueKamikaze = Registro.AtaqueKamikaze;
-                Memoria[Registro.X][Registro.Y].Aterrizaje = Registro.Aterrizaje;
-                Memoria[Registro.X][Registro.Y].Despegue = Registro.Despegue;
-                Memoria[Registro.X][Registro.Y].SiguienteX = Registro.SiguienteX;
-                Memoria[Registro.X][Registro.Y].SiguienteY = Registro.SiguienteY;
-            }
-            cout << "Lectura de archivos finalizada." << endl;
-        }
-        else
-        {
-            cout << "El archivo es invalido. No se cargo en memoria." << endl;
-        }
+        cout << "El archivo es invalido. No se cargo en memoria." << endl;
     }
-    fclose(f);
+    fclose(Archivo);
 }
 
 void MostrarAtaque()
