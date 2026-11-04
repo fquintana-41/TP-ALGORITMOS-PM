@@ -242,9 +242,198 @@ void GuardarMemoria()
     cout << " opcion 6: Guardar memoria en un archivo nuevo " << endl;
 }
 
-void VerHTML()
+void VerHTML(Orden Memoria[FILAS][COLUMNAS])
 {
-    cout << " opcion 7: Visualizar un archivo de ataque en html" << endl;
+    FILE *ArchivoHTML;
+    char RutaNombreArchivo[256];
+    bool CoordenadasOcupadas[FILAS][COLUMNAS] = {}; // Identifica las posiciones que contienen ordenes.
+    int DespegueX=-1;
+    int DespegueY=-1;
+    int ActualX, ActualY;
+    int SiguienteX, SiguienteY;
+
+    for (int Fila=0; Fila<FILAS; Fila++) // Busca el despegue para encontrar el inicio del recorrido.
+    {
+        for (int Columna=0; Columna<COLUMNAS; Columna++)
+        {
+            if (Memoria[Fila][Columna].Despegue)
+            {
+                DespegueX=Fila;
+                DespegueY=Columna;
+                break;
+            }
+        }
+
+        if (DespegueX!=-1)
+        {
+            break;
+        }
+    }
+
+    if (DespegueX==-1) // Comprueba que haya un ataque cargado en memoria.
+    {
+        cout << "No hay ningun ataque cargado en memoria." << endl;
+        return;
+    }
+    // Recorre la ruta para identificar las posiciones ocupadas.
+    ActualX = DespegueX;
+    ActualY = DespegueY;
+    while (true)
+    {
+        CoordenadasOcupadas[ActualX][ActualY]=true;
+
+        if (Memoria[ActualX][ActualY].Aterrizaje || Memoria[ActualX][ActualY].AtaqueKamikaze)
+        {
+            break;
+        }
+
+        SiguienteX = Memoria[ActualX][ActualY].SiguienteX;
+        SiguienteY = Memoria[ActualX][ActualY].SiguienteY;
+
+        ActualX = SiguienteX;
+        ActualY = SiguienteY;
+    }
+
+    cout << "Indique la ruta y nombre del archivo HTML." << endl;
+    cin >> RutaNombreArchivo;
+
+    ArchivoHTML=fopen(RutaNombreArchivo, "w");
+
+    if (ArchivoHTML==NULL)
+    {
+        cout << "No se pudo crear el archivo HTML." << endl;
+        return;
+    }
+
+    // Genera la estructura inicial del documento HTML.
+    fprintf(ArchivoHTML, "<html>\n");
+    fprintf(ArchivoHTML, "<head>\n");
+    fprintf(ArchivoHTML, "<meta charset=\"UTF-8\">\n");
+    fprintf(ArchivoHTML, "<title>Visualizacion del ataque</title>\n");
+
+    fprintf(ArchivoHTML, "<style>\n");
+
+    fprintf(ArchivoHTML, "body {\n");
+    fprintf(ArchivoHTML, "    font-family: Arial, sans-serif;\n");
+    fprintf(ArchivoHTML, "    margin: 20px;\n");
+    fprintf(ArchivoHTML, "}\n");
+
+    fprintf(ArchivoHTML, "#Tabla table {\n");
+    fprintf(ArchivoHTML, "    border-collapse: collapse;\n");
+    fprintf(ArchivoHTML, "    table-layout: fixed;\n");
+    fprintf(ArchivoHTML, "    width: 15040px;\n");
+    fprintf(ArchivoHTML, "}\n");
+
+    fprintf(ArchivoHTML, "#Tabla td {\n");
+    fprintf(ArchivoHTML, "    border: 1px solid #BBB;\n");
+    fprintf(ArchivoHTML, "    width: 75px;\n");
+    fprintf(ArchivoHTML, "    height: 65px;\n");
+    fprintf(ArchivoHTML, "    padding: 3px;\n");
+    fprintf(ArchivoHTML, "    vertical-align: middle;\n");
+    fprintf(ArchivoHTML, "    text-align: center;\n");
+    fprintf(ArchivoHTML, "    overflow-wrap: anywhere;\n");
+    fprintf(ArchivoHTML, "    font-size: 13px;\n");
+    fprintf(ArchivoHTML, "}\n");
+
+    // Estilo de los encabezados de filas y columnas.
+    fprintf(ArchivoHTML, "#Tabla th {\n");
+    fprintf(ArchivoHTML, "    border: 1px solid #BBB;\n");
+    fprintf(ArchivoHTML, "    width: 75px;\n");
+    fprintf(ArchivoHTML, "    padding: 3px;\n");
+    fprintf(ArchivoHTML, "    text-align: center;\n");
+    fprintf(ArchivoHTML, "    font-size: 12px;\n");
+    fprintf(ArchivoHTML, "    font-weight: normal;\n");
+    fprintf(ArchivoHTML, "    background-color: #F2F2F2;\n");
+    fprintf(ArchivoHTML, "}\n");
+
+    // Estilo del encabezado lateral de las filas.
+    fprintf(ArchivoHTML, "#Tabla th:first-child {\n");
+    fprintf(ArchivoHTML, "    width: 40px;\n");
+    fprintf(ArchivoHTML, "}\n");
+
+    // Estilo del titulo.
+    fprintf(ArchivoHTML, "h1 {\n");
+    fprintf(ArchivoHTML, "    margin-bottom: 10px;\n");
+    fprintf(ArchivoHTML, "    padding-bottom: 10px;\n");
+    fprintf(ArchivoHTML, "    border-bottom: 1px solid #BBB;\n");
+    fprintf(ArchivoHTML, "}\n");
+
+    // Estilo de las coordenadas del despegue.
+    fprintf(ArchivoHTML, "p {\n");
+    fprintf(ArchivoHTML, "    margin-top: 0;\n");
+    fprintf(ArchivoHTML, "    margin-bottom: 15px;\n");
+    fprintf(ArchivoHTML, "}\n");
+
+    fprintf(ArchivoHTML, "</style>\n");
+    fprintf(ArchivoHTML, "</head>\n");
+    fprintf(ArchivoHTML, "<body>\n");
+    fprintf(ArchivoHTML, "<h1>Visualizacion del ataque</h1>\n");
+
+    fprintf(ArchivoHTML, "<p><strong>Despegue:</strong> (%d,%d)</p>\n", DespegueX, DespegueY);// Muestra las coordenadas del despegue.
+    fprintf(ArchivoHTML, "<div id=\"Tabla\" style=\"overflow: auto;\">\n");
+    fprintf(ArchivoHTML, "<table border=\"1\">\n");
+
+    // Genera la numeracion de las columnas.
+    fprintf(ArchivoHTML, "<tr>\n");
+    fprintf(ArchivoHTML, "<th></th>\n");
+    for (int Columna=0; Columna<COLUMNAS; Columna++)
+    {
+        fprintf(ArchivoHTML, "<th>%d</th>\n", Columna);
+    }
+    fprintf(ArchivoHTML, "</tr>\n");
+    for (int Fila=0; Fila<FILAS; Fila++) // Genera las filas y su numeracion.
+    {
+        fprintf(ArchivoHTML, "<tr>\n");
+        fprintf(ArchivoHTML, "<th>%d</th>\n", Fila); // Numero de la fila.
+        for (int Columna=0; Columna<COLUMNAS; Columna++)
+        {
+            fprintf(ArchivoHTML, "<td>");
+            if (CoordenadasOcupadas[Fila][Columna])
+            {
+                // Muestra las coordenadas de la orden.
+                fprintf(ArchivoHTML, "<small>(%d,%d)</small><br><br>", Fila, Columna);
+                if (Memoria[Fila][Columna].Despegue)
+                {
+                    fprintf(ArchivoHTML, "D<br>");
+                }
+                if (Memoria[Fila][Columna].Aterrizaje)
+                {
+                    fprintf(ArchivoHTML, "A<br>");
+                }
+                if (Memoria[Fila][Columna].SoltarGranada1)
+                {
+                    fprintf(ArchivoHTML, "G1<br>");
+                }
+                if (Memoria[Fila][Columna].SoltarGranada2)
+                {
+                    fprintf(ArchivoHTML, "G2<br>");
+                }
+                if (Memoria[Fila][Columna].AtaqueKamikaze)
+                {
+                    fprintf(ArchivoHTML, "K<br>");
+                }
+                if (Memoria[Fila][Columna].Espera > 0)
+                {
+                    fprintf(ArchivoHTML, "E:%u<br>", Memoria[Fila][Columna].Espera);
+                }
+                if (!Memoria[Fila][Columna].Aterrizaje && !Memoria[Fila][Columna].AtaqueKamikaze)
+                {
+                    fprintf(ArchivoHTML, "<span style=\"white-space: nowrap;\">S:(%d,%d)</span>", Memoria[Fila][Columna].SiguienteX, Memoria[Fila][Columna].SiguienteY);
+                }
+            }
+            else
+            {
+                fprintf(ArchivoHTML, "&nbsp;");
+            }
+            fprintf(ArchivoHTML, "</td>\n");
+        }
+        fprintf(ArchivoHTML, "</tr>\n");
+    }
+    fprintf(ArchivoHTML, "</table>\n");
+    fprintf(ArchivoHTML, "</div>\n");
+    fprintf(ArchivoHTML, "</body>\n");
+    fprintf(ArchivoHTML, "</html>\n");
+    fclose(ArchivoHTML);
 }
 
 int main ()
@@ -277,7 +466,7 @@ int main ()
                 GuardarMemoria();
             break;
             case '7':
-                VerHTML();
+                VerHTML(Memoria);
             break;
             case '0':
                 cout << "Saliendo del programa" << endl;
