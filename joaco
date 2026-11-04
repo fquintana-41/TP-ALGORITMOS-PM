@@ -246,20 +246,20 @@ void VerHTML(Orden Memoria[FILAS][COLUMNAS])
 {
     FILE *ArchivoHTML;
     char RutaNombreArchivo[256];
-    bool CoordenadasOcupadas[FILAS][COLUMNAS] = {}; // Identifica las posiciones que contienen ordenes.
+    bool CoordenadasOcupadas[FILAS][COLUMNAS] = {};
     int DespegueX=-1;
     int DespegueY=-1;
     int ActualX, ActualY;
     int SiguienteX, SiguienteY;
 
-    for (int Fila=0; Fila<FILAS; Fila++) // Busca el despegue para encontrar el inicio del recorrido.
+    for (int Fila=0; Fila<FILAS; Fila++)
     {
         for (int Columna=0; Columna<COLUMNAS; Columna++)
         {
-            if (Memoria[Fila][Columna].Despegue)
+            if (Memoria[Columna][Fila].Despegue)
             {
-                DespegueX=Fila;
-                DespegueY=Columna;
+                DespegueX=Columna;
+                DespegueY=Fila;
                 break;
             }
         }
@@ -270,12 +270,11 @@ void VerHTML(Orden Memoria[FILAS][COLUMNAS])
         }
     }
 
-    if (DespegueX==-1) // Comprueba que haya un ataque cargado en memoria.
+    if (DespegueX==-1)
     {
         cout << "No hay ningun ataque cargado en memoria." << endl;
         return;
     }
-    // Recorre la ruta para identificar las posiciones ocupadas.
     ActualX = DespegueX;
     ActualY = DespegueY;
     while (true)
@@ -305,7 +304,6 @@ void VerHTML(Orden Memoria[FILAS][COLUMNAS])
         return;
     }
 
-    // Genera la estructura inicial del documento HTML.
     fprintf(ArchivoHTML, "<html>\n");
     fprintf(ArchivoHTML, "<head>\n");
     fprintf(ArchivoHTML, "<meta charset=\"UTF-8\">\n");
@@ -335,7 +333,6 @@ void VerHTML(Orden Memoria[FILAS][COLUMNAS])
     fprintf(ArchivoHTML, "    font-size: 13px;\n");
     fprintf(ArchivoHTML, "}\n");
 
-    // Estilo de los encabezados de filas y columnas.
     fprintf(ArchivoHTML, "#Tabla th {\n");
     fprintf(ArchivoHTML, "    border: 1px solid #BBB;\n");
     fprintf(ArchivoHTML, "    width: 75px;\n");
@@ -346,19 +343,16 @@ void VerHTML(Orden Memoria[FILAS][COLUMNAS])
     fprintf(ArchivoHTML, "    background-color: #F2F2F2;\n");
     fprintf(ArchivoHTML, "}\n");
 
-    // Estilo del encabezado lateral de las filas.
     fprintf(ArchivoHTML, "#Tabla th:first-child {\n");
     fprintf(ArchivoHTML, "    width: 40px;\n");
     fprintf(ArchivoHTML, "}\n");
 
-    // Estilo del titulo.
     fprintf(ArchivoHTML, "h1 {\n");
     fprintf(ArchivoHTML, "    margin-bottom: 10px;\n");
     fprintf(ArchivoHTML, "    padding-bottom: 10px;\n");
     fprintf(ArchivoHTML, "    border-bottom: 1px solid #BBB;\n");
     fprintf(ArchivoHTML, "}\n");
 
-    // Estilo de las coordenadas del despegue.
     fprintf(ArchivoHTML, "p {\n");
     fprintf(ArchivoHTML, "    margin-top: 0;\n");
     fprintf(ArchivoHTML, "    margin-bottom: 15px;\n");
@@ -373,7 +367,6 @@ void VerHTML(Orden Memoria[FILAS][COLUMNAS])
     fprintf(ArchivoHTML, "<div id=\"Tabla\" style=\"overflow: auto;\">\n");
     fprintf(ArchivoHTML, "<table border=\"1\">\n");
 
-    // Genera la numeracion de las columnas.
     fprintf(ArchivoHTML, "<tr>\n");
     fprintf(ArchivoHTML, "<th></th>\n");
     for (int Columna=0; Columna<COLUMNAS; Columna++)
@@ -388,37 +381,44 @@ void VerHTML(Orden Memoria[FILAS][COLUMNAS])
         for (int Columna=0; Columna<COLUMNAS; Columna++)
         {
             fprintf(ArchivoHTML, "<td>");
-            if (CoordenadasOcupadas[Fila][Columna])
+            if (CoordenadasOcupadas[Columna][Fila])
             {
-                // Muestra las coordenadas de la orden.
-                fprintf(ArchivoHTML, "<small>(%d,%d)</small><br><br>", Fila, Columna);
-                if (Memoria[Fila][Columna].Despegue)
+                fprintf(ArchivoHTML, "<small>(%d,%d)</small><br><br>", Columna, Fila);
+                if (Memoria[Columna][Fila].Despegue)
                 {
                     fprintf(ArchivoHTML, "D<br>");
                 }
-                if (Memoria[Fila][Columna].Aterrizaje)
+
+                if (Memoria[Columna][Fila].Aterrizaje)
                 {
                     fprintf(ArchivoHTML, "A<br>");
                 }
-                if (Memoria[Fila][Columna].SoltarGranada1)
+
+                if (Memoria[Columna][Fila].SoltarGranada1)
                 {
                     fprintf(ArchivoHTML, "G1<br>");
                 }
-                if (Memoria[Fila][Columna].SoltarGranada2)
+
+                if (Memoria[Columna][Fila].SoltarGranada2)
                 {
                     fprintf(ArchivoHTML, "G2<br>");
                 }
-                if (Memoria[Fila][Columna].AtaqueKamikaze)
+
+                if (Memoria[Columna][Fila].AtaqueKamikaze)
                 {
                     fprintf(ArchivoHTML, "K<br>");
                 }
-                if (Memoria[Fila][Columna].Espera > 0)
+
+                if (Memoria[Columna][Fila].Espera > 0)
                 {
-                    fprintf(ArchivoHTML, "E:%u<br>", Memoria[Fila][Columna].Espera);
+                    fprintf(ArchivoHTML, "E:%u<br>", Memoria[Columna][Fila].Espera);
                 }
-                if (!Memoria[Fila][Columna].Aterrizaje && !Memoria[Fila][Columna].AtaqueKamikaze)
+
+                if (!Memoria[Columna][Fila].Aterrizaje && !Memoria[Columna][Fila].AtaqueKamikaze)
                 {
-                    fprintf(ArchivoHTML, "<span style=\"white-space: nowrap;\">S:(%d,%d)</span>", Memoria[Fila][Columna].SiguienteX, Memoria[Fila][Columna].SiguienteY);
+                    fprintf(ArchivoHTML, "<span style=\"white-space: nowrap;\">S:(%d,%d)</span>",
+                    Memoria[Columna][Fila].SiguienteX,
+                    Memoria[Columna][Fila].SiguienteY);
                 }
             }
             else
